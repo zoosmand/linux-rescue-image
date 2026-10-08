@@ -1,0 +1,13 @@
+/.build/
+/binary/
+/tftpboot/
+/cache/
+/chroot/
+/artifacts/
+/live-image-*
+/config/binary
+/config/bootstrap
+/config/chroot
+/config/common
+/config/source
+/build.log

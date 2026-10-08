@@ -1,0 +1,13 @@
+#!/bin/sh
+set -eu
+lb config noauto \
+    --mode debian \
+    --distribution trixie \
+    --architectures amd64 \
+    --binary-images netboot \
+    --archive-areas 'main contrib non-free non-free-firmware' \
+    --debian-installer false \
+    --apt-recommends false \
+    --memtest none \
+    --bootappend-live 'boot=live components ip=dhcp hostname=rescue username=rescue' \
+    "${@}"
