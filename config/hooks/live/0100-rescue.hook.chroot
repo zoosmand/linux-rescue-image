@@ -28,7 +28,8 @@ rm -f /root/.rescue-password.hash
 install -d -m 0700 -o rescue -g rescue /home/rescue/.ssh
 install -m 0600 -o rescue -g rescue /root/.ssh/authorized_keys /home/rescue/.ssh/authorized_keys
 printf '%s\n' 'rescue ALL=(ALL:ALL) NOPASSWD: ALL' > /etc/sudoers.d/rescue
-chmod 0440 /etc/sudoers.d/rescue
+chown root:root /etc/sudoers.d/live /etc/sudoers.d/rescue
+chmod 0440 /etc/sudoers.d/live /etc/sudoers.d/rescue
 visudo --check
 chmod 0700 /root/.ssh
 chmod 0600 /root/.ssh/authorized_keys
