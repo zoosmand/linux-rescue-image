@@ -6,6 +6,12 @@ either mode; live-boot fetches the SquashFS root filesystem over HTTP into RAM.
 The package list includes storage, filesystem, recovery, diagnostic and boot
 repair tools, with GRUB binaries for both BIOS and UEFI repair.
 
+Cloud clients include `aws` and `az` from Debian's `awscli` and `azure-cli`
+packages, and `gcloud` from Google's signed APT repository. The Google CLI is
+installed by a build hook for both PXE and ISO images; builds need access to
+`packages.cloud.google.com` in addition to Debian mirrors. Its version follows
+the vendor repository at build time. Configure cloud authentication after boot.
+
 ## Build
 
 On a Debian 13 amd64 host with root access and internet connectivity:
@@ -97,10 +103,30 @@ that the same URL returns the SquashFS file successfully. If the URL is present
 and correct, add `debug=1` to the kernel parameters and inspect the preceding
 network/download errors.
 
+## File servers
+
+OpenNTPD starts automatically with `-s` to attempt an immediate clock correction
+at startup. Its NTP servers are configured in `/etc/openntpd/ntpd.conf`; provide
+an override in `config/includes.chroot/etc/openntpd/ntpd.conf` if needed.
+
+`tftpd-hpa` starts automatically and serves `/tftpboot` on UDP port 69.
+Place files there with permissions that allow the `tftp` user to read them.
+The server uses `--secure` to restrict serving to that directory; uploads of
+new files are not enabled.
+
+Python 3 includes the standard library HTTP server. To serve the same directory
+over HTTP, start it manually:
+
+```sh
+python3 -m http.server 8000 --bind 0.0.0.0 --directory /tftpboot
+```
+
+Files and server state created during the live session disappear on reboot.
+
 ## Access
 
-The image contains a `rescue` account. Console autologin is disabled, and sudo
-requires the rescue password. Set that password locally before rebuilding:
+The image contains a `rescue` account with passwordless sudo. Console autologin
+is disabled; set its console login password locally before rebuilding:
 
 ```sh
 sudo apt install whois
@@ -127,13 +153,17 @@ image. Host keys are generated on each boot rather than shared between machines.
 After setting the password or changing keys, run `sudo make clean` followed by
 `sudo make build` and/or `sudo make iso`.
 
+Both root and rescue have `.vimrc` and `.tmux.conf` files in their home
+directories. Customize the corresponding files in `config/includes.chroot/root/`
+and `config/includes.chroot/home/rescue/` before building.
+
 The root filesystem has a temporary writable overlay; session changes disappear
 at reboot. Repair commands can still modify local disks explicitly.
 
 ## Validation
 
 Boot the artifacts on one legacy BIOS client and one UEFI client. Confirm DHCP,
-HTTP retrieval, console password login, password-protected sudo and availability
+HTTP retrieval, console password login, passwordless sudo and availability
 of storage tools. After adding a public key, confirm SSH access as both root
 and rescue, and rejection of SSH password logins for both accounts.
 A successful image build alone does not verify firmware boot compatibility.

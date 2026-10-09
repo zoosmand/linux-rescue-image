@@ -1,0 +1,23 @@
+#!/bin/sh
+set -eu
+
+# Google Cloud CLI is distributed through Google's signed APT repository.
+cli_state=$(mktemp -d)
+key_file="$cli_state/apt-key.gpg"
+trap 'rm -rf "$cli_state"' EXIT HUP INT TERM
+curl --fail --silent --show-error --location --retry 3 \
+    https://packages.cloud.google.com/apt/doc/apt-key.gpg \
+    --output "$key_file"
+gpg --batch --yes --dearmor --output /usr/share/keyrings/cloud.google.gpg "$key_file"
+chmod 0644 /usr/share/keyrings/cloud.google.gpg
+printf '%s\n' \
+    'deb [arch=amd64 signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.cloud.google.com/apt cloud-sdk main' \
+    > /etc/apt/sources.list.d/google-cloud-sdk.list
+apt-get update
+DEBIAN_FRONTEND=noninteractive apt-get install --yes --no-install-recommends google-cloud-cli
+apt-get clean
+
+# Validate that all three cloud clients are executable in the built image.
+aws --version
+AZURE_CONFIG_DIR="$cli_state/azure" az version
+CLOUDSDK_CONFIG="$cli_state/gcloud" gcloud --version

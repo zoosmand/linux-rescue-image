@@ -1,14 +1,23 @@
 #!/bin/sh
 set -eu
+install -d -m 0755 -o tftp -g tftp /tftpboot
+systemctl enable tftpd-hpa.service
+systemctl enable openntpd.service
 if ! id rescue >/dev/null 2>&1; then
     useradd --create-home --shell /bin/bash --groups sudo rescue
 fi
+for profile_file in .bashrc .profile .bash_logout; do
+    if [ ! -e "/home/rescue/$profile_file" ] && [ -f "/etc/skel/$profile_file" ]; then
+        install -m 0644 -o rescue -g rescue "/etc/skel/$profile_file" "/home/rescue/$profile_file"
+    fi
+done
 for bashrc in /root/.bashrc /home/rescue/.bashrc; do
     if ! grep -Fsq '. /etc/bash/rescue.bashrc' "$bashrc"; then
         printf '\n%s\n' '. /etc/bash/rescue.bashrc' >> "$bashrc"
     fi
 done
-chown rescue:rescue /home/rescue/.bashrc
+chown rescue:rescue /home/rescue /home/rescue/.bashrc /home/rescue/.vimrc /home/rescue/.tmux.conf
+chmod 0644 /root/.vimrc /root/.tmux.conf /home/rescue/.vimrc /home/rescue/.tmux.conf
 if [ -s /root/.rescue-password.hash ]; then
     { printf 'rescue:'; cat /root/.rescue-password.hash; } | chpasswd --encrypted
 else
@@ -18,7 +27,7 @@ fi
 rm -f /root/.rescue-password.hash
 install -d -m 0700 -o rescue -g rescue /home/rescue/.ssh
 install -m 0600 -o rescue -g rescue /root/.ssh/authorized_keys /home/rescue/.ssh/authorized_keys
-printf '%s\n' 'rescue ALL=(ALL:ALL) ALL' > /etc/sudoers.d/rescue
+printf '%s\n' 'rescue ALL=(ALL:ALL) NOPASSWD: ALL' > /etc/sudoers.d/rescue
 chmod 0440 /etc/sudoers.d/rescue
 visudo --check
 chmod 0700 /root/.ssh

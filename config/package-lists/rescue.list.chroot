@@ -15,6 +15,7 @@ btrfs-progs
 smartmontools
 nvme-cli
 dmidecode
+lshw
 iproute2
 ethtool
 tcpdump
@@ -34,6 +35,7 @@ grub-efi-amd64-bin
 initramfs-tools
 isc-dhcp-client
 ca-certificates
+certbot
 less
 nano
 vim
@@ -58,6 +60,18 @@ zip
 unzip
 7zip
 libvirt-clients
+chntpw
+nmap
+xinetd
+netcat-openbsd
+openvpn
+openntpd
+uml-utilities
+tftpd-hpa
+python3
+awscli
+azure-cli
+gnupg
 firmware-linux-free
 firmware-linux-nonfree
 firmware-realtek
