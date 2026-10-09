@@ -49,6 +49,15 @@ iputils-ping
 procps
 lynx
 cifs-utils
+tar
+gzip
+bzip2
+xz-utils
+zstd
+zip
+unzip
+7zip
+libvirt-clients
 firmware-linux-free
 firmware-linux-nonfree
 firmware-realtek
