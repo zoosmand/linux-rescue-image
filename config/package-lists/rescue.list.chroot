@@ -18,6 +18,7 @@ dmidecode
 lshw
 iproute2
 net-tools
+dnsutils
 ethtool
 tcpdump
 curl
