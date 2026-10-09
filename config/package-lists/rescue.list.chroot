@@ -17,6 +17,7 @@ nvme-cli
 dmidecode
 lshw
 iproute2
+net-tools
 ethtool
 tcpdump
 curl
@@ -40,6 +41,7 @@ less
 nano
 vim
 tmux
+mc
 bash-completion
 git
 gh
