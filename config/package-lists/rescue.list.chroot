@@ -38,6 +38,17 @@ less
 nano
 vim
 tmux
+bash-completion
+git
+gh
+glab
+docker-cli
+kubectl
+inetutils-telnet
+iputils-ping
+procps
+lynx
+cifs-utils
 firmware-linux-free
 firmware-linux-nonfree
 firmware-realtek

@@ -1,4 +1,4 @@
-# Debian PXE rescue image
+# Debian rescue image (PXE and ISO)
 
 An amd64 Debian 13 (Trixie) live environment for legacy BIOS and x86-64 UEFI
 PXE clients. Your existing bootloader loads the same kernel and initramfs in
@@ -37,6 +37,25 @@ copies an existing build without rebuilding. `make clean` (also available as
 `make cleanup`) purges live-build state and caches, exported artifacts, packaged
 images and the build log. Project configuration and scripts are retained.
 
+## Rescue ISO
+
+Build a hybrid ISO with the same packages and SSH configuration:
+
+```sh
+sudo make iso
+```
+
+The output is `artifacts/rescue-amd64.iso`, with its checksum in
+`artifacts/rescue-amd64.iso.sha256`. The ISO includes BIOS (ISOLINUX) and
+x86-64 UEFI (GRUB) bootloaders and its own root filesystem, so it does not
+require your HTTP server. Use it as virtual CD/DVD media or write the hybrid
+image to a USB drive.
+
+ISO builds use a separate `.iso-build/` directory and leave the PXE build and
+exports available. Each ISO build starts with fresh build state; `make clean`
+also purges the ISO workspace and output. Boot-test the ISO under both BIOS and
+UEFI before using it for recovery.
+
 ## Serve and boot
 
 Copy the kernel and initramfs to your TFTP server under `rescue/` and serve the
@@ -65,16 +84,48 @@ menuentry 'Debian rescue' {
 ```
 
 These entries use your existing PXE bootloader and DHCP/TFTP configuration.
+The generated `tftpboot/live.cfg` does not contain your HTTP server's address.
+If you use that menu, add `fetch=http://YOUR_SERVER_IP/rescue/filesystem.squashfs`
+to its `append` lines as well. Loading only the kernel and initramfs is not
+enough to boot the live environment.
 UEFI Secure Boot support is not validated by this project.
+
+If boot reports "Unable to find a medium containing a live file system", run
+`cat /proc/cmdline` at the initramfs prompt and confirm that `fetch=` contains
+the correct numeric HTTP server address and path. From another machine, check
+that the same URL returns the SquashFS file successfully. If the URL is present
+and correct, add `debug=1` to the kernel parameters and inspect the preceding
+network/download errors.
 
 ## Access
 
-The local console uses the live-config `rescue` account with its default live
-session login and sudo behavior. SSH starts automatically and accepts public
-keys only. Root's `config/includes.chroot/root/.ssh/authorized_keys` is
-intentionally empty; add public keys there before building a final release.
-Until then there is no usable SSH login. Private keys never belong in the image.
-Host keys are generated on each boot rather than shared between machines.
+The image contains a `rescue` account. Console autologin is disabled, and sudo
+requires the rescue password. Set that password locally before rebuilding:
+
+```sh
+sudo apt install whois
+make password
+```
+
+The command prompts for the password without echoing it and saves a yescrypt
+hash in an ignored local file. Run `sudo make password` if the configuration
+directory is root-owned. Without a configured password, console password login
+for rescue is disabled. The hash is applied to `/etc/shadow` during the build;
+the temporary input file is removed from the image. `make clean` retains the
+local password input. Anyone who can download the image can extract its shadow
+hash, so use a long password unique to this rescue environment.
+
+SSH starts automatically and accepts public keys only for both `root` and
+`rescue`. Put their shared public key in
+`config/includes.chroot/root/.ssh/authorized_keys`; the build copies that file
+to rescue's home directory with the correct ownership and permissions. It is
+intentionally empty until you add a key, so neither account currently has a
+usable SSH login. Root SSH password login and all SSH password/keyboard
+interactive authentication remain disabled. Private keys never belong in the
+image. Host keys are generated on each boot rather than shared between machines.
+
+After setting the password or changing keys, run `sudo make clean` followed by
+`sudo make build` and/or `sudo make iso`.
 
 The root filesystem has a temporary writable overlay; session changes disappear
 at reboot. Repair commands can still modify local disks explicitly.
@@ -82,8 +133,9 @@ at reboot. Repair commands can still modify local disks explicitly.
 ## Validation
 
 Boot the artifacts on one legacy BIOS client and one UEFI client. Confirm DHCP,
-HTTP retrieval, local sudo access and availability of storage tools. After
-adding a public key, confirm root SSH access and rejection of password logins.
+HTTP retrieval, console password login, password-protected sudo and availability
+of storage tools. After adding a public key, confirm SSH access as both root
+and rescue, and rejection of SSH password logins for both accounts.
 A successful image build alone does not verify firmware boot compatibility.
 
 References: [Debian Live Manual](https://live-team.pages.debian.net/live-manual/html/live-manual.en.html)

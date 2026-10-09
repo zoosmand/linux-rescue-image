@@ -1,5 +1,26 @@
 #!/bin/sh
 set -eu
+if ! id rescue >/dev/null 2>&1; then
+    useradd --create-home --shell /bin/bash --groups sudo rescue
+fi
+for bashrc in /root/.bashrc /home/rescue/.bashrc; do
+    if ! grep -Fsq '. /etc/bash/rescue.bashrc' "$bashrc"; then
+        printf '\n%s\n' '. /etc/bash/rescue.bashrc' >> "$bashrc"
+    fi
+done
+chown rescue:rescue /home/rescue/.bashrc
+if [ -s /root/.rescue-password.hash ]; then
+    { printf 'rescue:'; cat /root/.rescue-password.hash; } | chpasswd --encrypted
+else
+    # Disable console passwords until a local password has been configured.
+    usermod --password '*' rescue
+fi
+rm -f /root/.rescue-password.hash
+install -d -m 0700 -o rescue -g rescue /home/rescue/.ssh
+install -m 0600 -o rescue -g rescue /root/.ssh/authorized_keys /home/rescue/.ssh/authorized_keys
+printf '%s\n' 'rescue ALL=(ALL:ALL) ALL' > /etc/sudoers.d/rescue
+chmod 0440 /etc/sudoers.d/rescue
+visudo --check
 chmod 0700 /root/.ssh
 chmod 0600 /root/.ssh/authorized_keys
 # Each boot gets its own identity; never distribute build-time host keys.
