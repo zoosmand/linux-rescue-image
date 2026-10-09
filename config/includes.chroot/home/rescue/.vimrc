@@ -1,4 +1,5 @@
 set nocompatible
+colorscheme morning
 syntax on
 filetype plugin indent on
 set number

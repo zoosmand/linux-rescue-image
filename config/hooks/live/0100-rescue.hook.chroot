@@ -16,8 +16,8 @@ for bashrc in /root/.bashrc /home/rescue/.bashrc; do
         printf '\n%s\n' '. /etc/bash/rescue.bashrc' >> "$bashrc"
     fi
 done
-chown rescue:rescue /home/rescue /home/rescue/.bashrc /home/rescue/.vimrc /home/rescue/.tmux.conf
-chmod 0644 /root/.vimrc /root/.tmux.conf /home/rescue/.vimrc /home/rescue/.tmux.conf
+chown rescue:rescue /home/rescue /home/rescue/.bashrc /home/rescue/.vimrc /home/rescue/.tmux.conf /home/rescue/.bash_aliases
+chmod 0644 /root/.vimrc /root/.tmux.conf /root/.bash_aliases /home/rescue/.vimrc /home/rescue/.tmux.conf /home/rescue/.bash_aliases
 if [ -s /root/.rescue-password.hash ]; then
     { printf 'rescue:'; cat /root/.rescue-password.hash; } | chpasswd --encrypted
 else

@@ -153,7 +153,7 @@ image. Host keys are generated on each boot rather than shared between machines.
 After setting the password or changing keys, run `sudo make clean` followed by
 `sudo make build` and/or `sudo make iso`.
 
-Both root and rescue have `.vimrc` and `.tmux.conf` files in their home
+Both root and rescue have `.vimrc`, `.tmux.conf`, and `.bash_aliases` files in their home
 directories. Customize the corresponding files in `config/includes.chroot/root/`
 and `config/includes.chroot/home/rescue/` before building.
 

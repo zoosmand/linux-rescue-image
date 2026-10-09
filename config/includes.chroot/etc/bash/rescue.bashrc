@@ -4,6 +4,10 @@ case $- in
     *) return ;;
 esac
 
+if [ -r "$HOME/.bash_aliases" ]; then
+    . "$HOME/.bash_aliases"
+fi
+
 if ! declare -F _init_completion >/dev/null && [ -r /usr/share/bash-completion/bash_completion ]; then
     . /usr/share/bash-completion/bash_completion
 fi
