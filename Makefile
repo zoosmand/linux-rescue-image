@@ -1,6 +1,12 @@
 .DEFAULT_GOAL := build
 
-.PHONY: build iso export password clean cleanup
+.PHONY: build iso export pack password clean cleanup
+
+TCP_PORT ?= 80
+export IP_ADDR TCP_PORT
+
+pack:
+	python3 scripts/pack.py
 
 password:
 	./scripts/set-password.sh

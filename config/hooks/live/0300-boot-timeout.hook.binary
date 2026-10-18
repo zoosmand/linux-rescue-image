@@ -1,0 +1,16 @@
+#!/bin/sh
+set -eu
+
+# Binary hooks run inside binary/; netboot menus live in ../tftpboot/.
+# SYSLINUX/PXELINUX counts tenths of a second.
+for menu_file in isolinux/isolinux.cfg ../tftpboot/pxelinux.cfg/default; do
+    if [ -f "$menu_file" ]; then
+        sed -i '/^[[:space:]]*timeout[[:space:]]/Id' "$menu_file"
+        printf '\ntimeout 100\n' >> "$menu_file"
+    fi
+done
+
+# GRUB counts seconds. Apply after the generated configuration is loaded.
+if [ -f boot/grub/grub.cfg ]; then
+    printf '\nset timeout_style=menu\nset timeout=10\n' >> boot/grub/grub.cfg
+fi

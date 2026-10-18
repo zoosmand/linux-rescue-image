@@ -1,0 +1,6 @@
+ENTRY "/etc" URL "/etc"
+ENTRY "/var" URL "/var"
+ENTRY "/var/lib/dhcp" URL "/var/lib/dhcp"
+ENTRY "/var/cache/bind" URL "/var/cache/bind"
+ENTRY "/mnt" URL "/mnt"
+ENTRY "/var/log" URL "/var/log"
