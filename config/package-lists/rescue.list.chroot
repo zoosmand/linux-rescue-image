@@ -15,8 +15,11 @@ btrfs-progs
 smartmontools
 nvme-cli
 dmidecode
+lm-sensors
 lshw
+iotop
 iproute2
+iptables
 net-tools
 dnsutils
 ethtool
@@ -42,8 +45,10 @@ certbot
 less
 nano
 vim
+jq
 tmux
 mc
+make
 bash-completion
 git
 gh
@@ -76,6 +81,10 @@ python3
 awscli
 azure-cli
 gnupg
+wget
+traceroute
+arp-scan
+arping
 firmware-linux-free
 firmware-linux-nonfree
 firmware-realtek
